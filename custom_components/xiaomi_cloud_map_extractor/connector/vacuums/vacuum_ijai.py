@@ -69,10 +69,15 @@ class IjaiCloudVacuum(BaseXiaomiCloudVacuumV2):
     @property
     def map_data_parser(self) -> IjaiMapDataParser:
         return self._ijai_map_data_parser
-
-    async def get_map_url(self, map_name: str) -> str | None:
-        url = self._connector.get_api_url(
-            self._server) + '/v2/home/get_interim_file_url_pro'
+        
+async def get_map_url(self, map_name: str) -> str | None:
+        # The ijai.vacuum.v3 uses the standard API endpoint ('get_interim_file_url'),
+        # while newer IJAI models use the Pro endpoint ('get_interim_file_url_pro').
+        if self.model == "ijai.vacuum.v3":
+            url = self._connector.get_api_url(self._server) + '/v2/home/get_interim_file_url'
+        else:
+            url = self._connector.get_api_url(self._server) + '/v2/home/get_interim_file_url_pro'
+            
         params = {
             "data": f'{{"obj_name":"{self._user_id}/{self._device_id}/{map_name}"}}'
         }
@@ -83,7 +88,7 @@ class IjaiCloudVacuum(BaseXiaomiCloudVacuumV2):
                 or api_response["result"] is None
                 or "url" not in api_response["result"]):
             _LOGGER.debug(
-                f"API returned {api_response['code']}" + "(" + api_response["message"] + ")")
+                f"API returned {api_response.get('code', 'unknown')}" + "(" + api_response.get("message", "") + ")")
             return None
         return api_response["result"]["url"]
 
