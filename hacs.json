@@ -1,6 +1,6 @@
 {
   "name": "Xiaomi Cloud Map Extractor",
   "render_readme": true,
-  "zip_release": true,
+  "zip_release": false,
   "filename": "xiaomi_cloud_map_extractor.zip"
 }
